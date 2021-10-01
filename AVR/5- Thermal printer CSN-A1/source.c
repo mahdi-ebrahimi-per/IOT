@@ -150,8 +150,10 @@ SPCR=(0<<SPIE) | (0<<SPE) | (0<<DORD) | (0<<MSTR) | (0<<CPOL) | (0<<CPHA) | (0<<
 TWCR=(0<<TWEA) | (0<<TWSTA) | (0<<TWSTO) | (0<<TWEN) | (0<<TWIE);
 
 while (1)
-      {
-      // Place your code here
+      { 
+      // using D2 for enter printing button
+      // using D7 for DTR
+      
       		
 		while (PIND.2 == 1);
 		
