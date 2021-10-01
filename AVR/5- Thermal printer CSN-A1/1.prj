@@ -19,8 +19,16 @@ OutputListFilesDirectory=Release\List
 OutputObjectFilesDirectory=Release
 OutputExecutableFilesDirectory=Release\Exe
 OutputLinkerFilesDirectory=Release\Exe
-AllowDisplayFunctionCallTree=0
+AllowDisplayFunctionCallTree=1
 CleanUp=2
+EditorPanelMode=0
+ActiveEditorPanel=0
+Active0=0
+EditorPanel0=0
+PageIndex0=0
+EditorPanel1=0
+TimeStamp1=1396812726
+PageIndex1=1
 [CompilerDebug]
 Chip=ATmega32
 CPUClock=12007000
@@ -120,7 +128,7 @@ UseEEPROMLocation0=1
 RebuildAll=0
 LinkageInformationPresent=1
 COFFileTimeStamp=1396812727
-Build=2
+Build=3
 [DefinedSymbolsDebug]
 Count=0
 [Compiler]
@@ -222,7 +230,7 @@ UseEEPROMLocation0=1
 RebuildAll=1
 LinkageInformationPresent=0
 COFFileTimeStamp=-1
-Build=2
+Build=3
 [DefinedSymbols]
 Count=0
 [StartUp]
@@ -356,8 +364,9 @@ L10=[.dseg] 0x000060 0x000260      0      0      0    2048   0.0%
 L11=[.eseg] 0x000000 0x000000      0      0      0    1024   0.0%
 L12=
 [BookmarksFoldedCode]
-Files=1
+Files=2
 F1=C:\Program Files (x86)\Code Vision\inc\io.h
+F2=source.c
 [Bookmarks1]
 TimeStamp=1132885423
 Row=0
@@ -386,3 +395,27 @@ F2=C:\Program Files (x86)\Code Vision\inc\mega32_bits.h
 F3=C:\Program Files (x86)\Code Vision\inc\stdio.h
 F4=C:\Program Files (x86)\Code Vision\inc\io.h
 F5=C:\Program Files (x86)\Code Vision\inc\stdarg.h
+[Bookmarks0]
+Row=0
+Column=0
+ScrollPosX=0
+ScrollPosY=0
+TimeStamp=1396812753
+[Bookmarks2]
+TimeStamp=1396812726
+Row=154
+Column=25
+ScrollPosX=0
+ScrollPosY=132
+BK0=-1
+BK1=-1
+BK2=-1
+BK3=-1
+BK4=-1
+BK5=-1
+BK6=-1
+BK7=-1
+BK8=-1
+BK9=-1
+[FoldedCode2]
+Blocks=0
