@@ -2209,50 +2209,52 @@ _main:
 ; 0000 0098 while (1)
 _0x3:
 ; 0000 0099       {
-; 0000 009A       // Place your code here
-; 0000 009B 
-; 0000 009C 		while (PIND.2 == 1);
+; 0000 009A       // using D2 for enter printing button
+; 0000 009B       // using D7 for DTR
+; 0000 009C 
+; 0000 009D 
+; 0000 009E 		while (PIND.2 == 1);
 _0x6:
 	SBIC 0x10,2
 	RJMP _0x6
-; 0000 009D 
-; 0000 009E 		for (i = 0; i < HexLength; i++)
+; 0000 009F 
+; 0000 00A0 		for (i = 0; i < HexLength; i++)
 	__GETWRN 16,17,0
 _0xA:
 	__CPWRR 16,17,4,5
 	BRGE _0xB
-; 0000 009F 		{
-; 0000 00A0 			while (PIND.7 == 1);
+; 0000 00A1 		{
+; 0000 00A2 			while (PIND.7 == 1);
 _0xC:
 	SBIC 0x10,7
 	RJMP _0xC
-; 0000 00A1 			putchar(Img[i]);
+; 0000 00A3 			putchar(Img[i]);
 	MOVW R30,R16
 	SUBI R30,LOW(-_Img*2)
 	SBCI R31,HIGH(-_Img*2)
 	LPM  R26,Z
 	RCALL _putchar
-; 0000 00A2 		}
+; 0000 00A4 		}
 	__ADDWRN 16,17,1
 	RJMP _0xA
 _0xB:
-; 0000 00A3 
-; 0000 00A4 		// enter (for white space)
-; 0000 00A5 		putchar(0x0d);
+; 0000 00A5 
+; 0000 00A6 		// enter (for white space)
+; 0000 00A7 		putchar(0x0d);
 	CALL SUBOPT_0x0
-; 0000 00A6 		putchar(0x0a);
-; 0000 00A7 
-; 0000 00A8 		putchar(0x0d);
+; 0000 00A8 		putchar(0x0a);
+; 0000 00A9 
+; 0000 00AA 		putchar(0x0d);
 	CALL SUBOPT_0x0
-; 0000 00A9 		putchar(0x0a);
-; 0000 00AA 
-; 0000 00AB 		putchar(0x0d);
+; 0000 00AB 		putchar(0x0a);
+; 0000 00AC 
+; 0000 00AD 		putchar(0x0d);
 	CALL SUBOPT_0x0
-; 0000 00AC 		putchar(0x0a);
-; 0000 00AD 
-; 0000 00AE       }
+; 0000 00AE 		putchar(0x0a);
+; 0000 00AF 
+; 0000 00B0       }
 	RJMP _0x3
-; 0000 00AF }
+; 0000 00B1 }
 _0xF:
 	RJMP _0xF
 ; .FEND
