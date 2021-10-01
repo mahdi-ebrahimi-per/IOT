@@ -1,0 +1,6 @@
+VERSION:3 SOURCE_TIMESTAMP:5341AB1A
+NODE:I LEVEL:0 LINE:24 "C:\Program Files (x86)\Code Vision\inc\mega32.h"
+NODE:I LEVEL:0 LINE:29 "C:\Program Files (x86)\Code Vision\inc\stdio.h"
+NODE:V LEVEL:0 LINE:33 "HexLength -> R4,R5"
+NODE:C LEVEL:0 LINE:34 "Img -> FLASH"
+NODE:F LEVEL:0 LINE:37 "main(void)"
