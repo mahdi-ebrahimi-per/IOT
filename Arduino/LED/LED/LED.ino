@@ -11,9 +11,9 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   int delayPeriod = 100;
-  digitalWrite(ledPin, 1);
+  digitalWrite(ledPin, 1);   // 1 or HIGH or true
   delay(delayPeriod);
-  digitalWrite(ledPin, 0);
+  digitalWrite(ledPin, 0);   // 0 or LOW or false
   delay(delayPeriod);
 
     
