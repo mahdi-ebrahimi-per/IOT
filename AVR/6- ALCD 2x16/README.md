@@ -16,10 +16,10 @@ clear all text on the lcd.
 
 ## lcd_puts( char*str );
 
-put string on the screen, that read from RAM.
+put string on the screen, that read (save `char*str`) from/on RAM.
 
 
 
 ## lcd_puts( char*str );
 
-put string on the screen that read from FLASH.
+put string on the screen that read (save `char*str`) from/on FLASH.
