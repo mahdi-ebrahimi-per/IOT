@@ -7,12 +7,19 @@ we see ALCD function in CodeVision :
 move cursor to x, y of 2x16 and start putting text from there.
 
 
+
 ## lcd_clear( );
 
 clear all text on the lcd.
 
+
+
 ## lcd_puts( char*str );
 
-put string on the screen. 
+put string on the screen, that read from RAM.
 
 
+
+## lcd_puts( char*str );
+
+put string on the screen that read from FLASH.
