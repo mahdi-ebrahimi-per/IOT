@@ -1,5 +1,5 @@
 > note : the main code is in `codeVision` directory, you can unzip and use them. <br>
-> the `code_preview.c` is just preview and not work currectly. <br>
+> the `code_preview.c` is just preview and doesn't work currectly. <br>
 
 ### microcontroller 
 - model : AVR-ATMEGA-32A
