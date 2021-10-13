@@ -49,7 +49,7 @@ here we input string in this function.
 <br>
 
 # Bread Board Circuit
-<img src="https://github.s3.ir-thr-at1.arvanstorage.com/ALCD-circuit.png" alt="circuit" width="600"/>
+<img src="https://github.s3.ir-thr-at1.arvanstorage.com/ALCD-circuit.png" alt="circuit" width="800"/>
 
 <br>
 <br>
