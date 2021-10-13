@@ -15,7 +15,7 @@ char temp[5];
 
 // while code : 
 num = PINA;
-itoa(num, temp);
+itoa(num, temp);   // int to string
 
 lcd_clear();
 
