@@ -44,6 +44,12 @@ put string on the screen that read (save `char*str`) from/on FLASH.
 <br>
 <br>
 
+# Bread Board Circuit
+<img src="https://github.s3.ir-thr-at1.arvanstorage.com/ALCD-circuit.png" alt="circuit" width="600"/>
+
+<br>
+<br>
+
 # Pins, Fuse bits & ALCD connect
 <img src="https://github.s3.ir-thr-at1.arvanstorage.com/ALCD_Ports.png" alt="ALCD ports" width="600"/>
 <br>
