@@ -22,23 +22,27 @@ we see ALCD function in CodeVision :
 
 move cursor to x, y of 2x16 and start putting text from there.
 
-
+<br>
 
 ## lcd_clear( );
 
 clear all text on the lcd.
 
-
+<br>
 
 ## lcd_puts( char*str );
 
 put string on the screen, that read (save `char*str`) from/on RAM.
+<br>
+here we input Variable in this function.
 
+<br>
 
-
-## lcd_puts( char*str );
+## lcd_putsf( char*str );
 
 put string on the screen that read (save `char*str`) from/on FLASH.
+<br>
+here we input string in this function.
 
 
 <br>
