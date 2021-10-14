@@ -1,0 +1,1589 @@
+Graphic Display Functions Previous Top Next  
+
+--------------------------------------------------------------------------------
+
+The Graphic Display Functions are intended for easy interfacing between C programs and graphic LCD, TFT and OLED modules built with a large variety of controllers.
+The prototypes for these functions are placed in the file glcd.h, located in the .\INC subdirectory. This file must be #include -d before using the functions.
+
+
+Before using these functions, the type of the graphic display controller, the I/O port signals employed for communication with it and the display resolution must be specified in the Project|Configure|C Compiler|Libraries|Graphic Display menu.
+The following graphic display controllers are supported:
+
+
+·      Ilitek ILI9325 (for color 240x320 TFT displays)
+·      Ilitek ILI9340 (for color 240x320 TFT displays)
+·      Ilitek ILI9341 (for color 240x320 TFT displays)
+·      Samsung KS0108 (equivalent: HD61202)
+·      Philips PCD8544
+·      Epson S1D13700
+·      Samsung S6D1121 (for color 240x320 TFT displays)
+·      S-MOS Systems SED1520 (equivalents: NJU6450, PT6520)
+·      Epson SED1335 (equivalent: RA8835)
+·      Epson SED1530
+·      Sunplus SPLC501C
+·      Sino Wealth SH1101A (for 132x64 OLED displays)
+·      Solomon Systech SSD1289 (for color 240x320 TFT displays)
+·      Solomon Systech SSD1303  (for 132x64 OLED displays)
+·      Solomon Systech SSD1322  (for 128x64, 256x64 OLED displays)
+·      Solomon Systech SSD1963 (for color 320x240, 480x272 and 800x480 TFT displays)
+·      Solomon Systech SSD2119 (for color 320x240 TFT displays)
+·      Sitronix ST7565
+·      Sitronix ST7567
+·      Sitronix ST7920
+·      Toshiba T6963C
+·      UltraChip UC1608
+·      UltraChip UC1701
+·      Delcomp XG7100.
+
+
+Note: The library functions for color TFT displays are supported only for the Advanced or Professional CodeVisionAVR licenses.
+
+
+The Graphic Display functions do support both the XMEGA and non-XMEGA AVR chips.
+
+
+The coordinate system employed by these functions has the origin (0,0) in the upper left corner of the display, with the x-coordinates increasing from left to right, and the y-coordinates increasing from top to bottom.
+Coordinate clipping is performed, therefore no graphic data will be displayed for invalid coordinates.
+
+
+The following helper data types are defined in the header file glcd_types.h:
+
+
+·      GLCDX_t type used for specifying the X horizontal display coordinate
+·      GLCDY_t type used for specifying the Y vertical display coordinate
+·      GLCDDX_t type used for specifying a horizontal displacement
+·      GLCDDY_t type used for specifying a vertical displacement
+·      GLCDRAD_t type used for specifying a circle radius
+·      GLCDCOL_t type used for specifying foreground and background display colors
+·      GLCDMEMADDR_t type used for specifying RAM, EEPROM, FLASH or external memory addresses for bitmap image storage
+·      GLCDBLOCKMODE_t enumeration type used for specifying the read/write modes for the glcd_block function:
+
+
+typedef enum
+        {
+        GLCD_PUTCOPY, /* copy a bitmap from memory to display
+                         overwriting previous display data */
+        GLCD_PUTXOR,  /* copy a bitmap from memory to display
+                         performing a XOR with previous display data */
+        GLCD_PUTOR,   /* copy a bitmap from memory to display
+                         performing an OR with previous display data */
+        GLCD_PUTNOT,  /* copy a bitmap from memory to display
+                         performing a bit negation */
+        GLCD_PUTAND,  /* copy a bitmap from memory to display
+                         performing an AND with previous display data */
+        GLCD_PUTTP,   /* used for displaying image in tranparent mode */
+        GLCD_GET      /* used for storing a block of data from
+                         specified coordinates to memory */
+        GLCD_PUTCHAR, /* used internally by the glcd_putchar function */
+        GLCD_PUTFILL, /* used internally by the rectangular area fill
+                         function */
+        GLCD_CLEARBLOCK, /* used internally by the rectangular area
+                            clear function */
+        GLCD_SETBLOCK, /* used internally by the rectangular area set
+                          function */
+        } GLCDBLOCKMODE_t;
+
+
+Notes: 
+·      The GLCD_PUTXOR, GLCD_PUTOR, GLCD_PUTNOT, GLCD_PUTAND modes are supported only for displays with 2 colors (monochrome).
+·      The GLCD_PUTTP mode is supported only for displays with more than 2 colors.
+
+
+
+
+·      GLCDMEMADDR_t type used for specifying RAM, EEPROM, FLASH or external memory addresses for bitmap image storage
+·      GLCDTEXT_t structure type used for specifying the text displaying parameters:
+
+
+typedef struct
+        {
+        flash unsigned char *font; /* current font */
+        unsigned char horiz;    /* horizontal justification in pixels */
+        unsigned char vert;     /* vertical justification in pixels */
+        unsigned char transparent:1; /* enable transparent text display mode */
+        } GLCDTEXT_t;
+
+
+Note: The transparent structure member is defined only for displays with more than 2 colors.
+
+
+·      GLCDLINE_t structure type used for specifying the line drawing parameters:
+
+
+typedef struct
+        {
+        unsigned char thick;   /* line thickness */
+        unsigned char pattern; /* bit pattern */
+        } GLCDLINE_t; 
+
+
+·      GLCDPOINT_t structure type used for specifying point coordinates:
+
+
+typedef struct
+        {
+        GLCDX_t x;
+        GLCDY_t y;
+        } GLCDPOINT_t;
+
+
+·      GLCDFILL_t structure type used for specifying the fill style parameters:
+
+
+typedef struct
+        {
+        GLCDCOL_t color; /* fill color */
+
+
+        /* bit pattern for filling a rectangular area */
+        unsigned char pattern[_GLCD_FILL_PATTERN_WIDTH_]; 
+        } GLCDFILL_t;
+
+
+·      GLCDARCCOORDS_t structure type used for specifying the arc coordinates:
+
+
+typedef struct
+        {
+        GLCDX_t x;      /* arc x center coordinate */
+        GLCDY_t y;      /* arc y center coordinate */
+        GLCDX_t xstart; /* arc start x coordinate */
+        GLCDY_t ystart; /* arc start y coordinate */
+        GLCDX_t xend;   /* arc end x coordinate */
+        GLCDY_t yend;   /* arc end y coordinate */
+        } GLCDARCCOORDS_t;
+
+
+·      GLCDINIT_t structure type used for specifying various parameters used for initializing the display controller:
+
+
+typedef struct 
+        {
+        flash unsigned char *font; /* default font after initialization */
+
+
+        /* pointer to the function used for reading a byte from external memory */
+        unsigned char (*readxmem) (GLCDMEMADDR_t addr); 
+        
+        /* pointer to the function used for writing a byte to external memory */
+        void (*writexmem) (GLCDMEMADDR_t addr, unsigned char data); 
+        
+        /* additional structure members which are specific to each display controller... */
+
+
+        } GLCDINIT_t;
+
+
+·      GLCDSTATE_t structure type used for specifying the graphic display state:
+      
+typedef struct
+        {
+        GLCDCOL_t fgcolor;   /* foreground color */
+        GLCDCOL_t bkcolor;   /* background color */
+        GLCDCOL_t tpcolor;   /* transparency color */
+        GLCDX_t cx;          /* current x horizontal coordinate */
+        GLCDY_t cy;          /* current y vertical coordinate */
+        GLCDTEXT_t text;     /* current text display settings */
+        GLCDLINE_t line;     /* current line display settings */
+        GLCDARCCOORDS_t arc; /* coordinates of last displayed arc */
+        GLCDFILL_t fill;     /* current fill display settings */
+
+
+        /* pointer to the function used for reading a byte from external memory */
+        unsigned char (*readxmem) (GLCDMEMADDR_t addr); 
+
+
+        /* pointer to the function used for writing a byte to external memory */
+        void (*writexmem) (GLCDMEMADDR_t addr, unsigned char data); 
+        } GLCDSTATE_t;
+
+
+Note: The tpcolor transparency color member is available only for displays with more than 2 colors.
+
+
+·      GLCDMEM_t enumeration type used for specifying the kind of memory access:
+      
+typedef enum
+        {
+        GLCD_MEM_RAM,    /* RAM access */
+        GLCD_MEM_FLASH,  /* FLASH access */
+        GLCD_MEM_EEPROM, /* EEPROM access */
+        GLCD_MEM_EXT     /* external memory accessed using special functions */
+        } GLCDMEM_t;
+
+
+The following macros are defined in the header file glcd_types.h :
+
+
+·      GLCD_LINE_SOLID solid line pattern
+·      GLCD_LINE_DOT_SMALL small dots line pattern
+·      GLCD_LINE_DOT_LARGE large dots line pattern
+·      _GLCD_FILL_PATTERN_WIDTH_ width of the fill pattern measured in pixels
+·      _GLCD_MAXCOLOR_ highest color value for a pixel in ON state.
+
+
+The following macros are predefined by the compiler based on the settings from the Project|Configure|C Compiler|Libraries|Graphic Display menu:
+
+
+·      _GLCD_MAXX_ horizontal display resolution measured in pixels
+·      _GLCD_MAXY_ vertical display resolution measured in pixels
+·      _GLCD_BYTEY_ signals that the display controller uses vertical byte organization for accessing the display RAM
+·      _GLCD_INTERNAL_FONT_WIDTH_ specifies the width of the internal character generator's font, measured in pixels
+·      _GLCD_INTERNAL_FONT_HEIGHT_ specifies the height of the internal character generator's font, measured in pixels
+·      _GLCD_CTRL_ILI9325_ signals that the display controller type is Ilitek ILI9325
+·      _GLCD_CTRL_ILI9340_ signals that the display controller type is Ilitek ILI9340
+·      _GLCD_CTRL_ILI9341_ signals that the display controller type is Ilitek ILI9341
+·      _GLCD_CTRL_KS0108_ signals that the display controller type is Samsung KS0108
+·      _GLCD_CTRL_SED1335_ signals that the display controller type is Epson SED1335
+·      _GLCD_CTRL_SED1520_ signals that the display controller type is S-MOS Systems SED1520
+·      _GLCD_CTRL_SED1530_ signals that the display controller type is Epson SED1520
+·      _GLCD_CTRL_S1D13700_ signals that the display controller type is Epson S1D13700
+·      _GLCD_CTRL_S6D1121_ signals that the display controller type is Samsung S6D1121
+·      _GLCD_CTRL_ST7565_ signals that the display controller type is Sitronix ST7565
+·      _GLCD_CTRL_ST7567_ signals that the display controller type is Sitronix ST7567
+·      _GLCD_CTRL_ST7920_ signals that the display controller type is Sitronix ST7920
+·      _GLCD_CTRL_SPLC501_ signals that the display controller type is Sunplus SPLC501C
+·      _GLCD_CTRL_SSD1289_ signals that the display controller type is Solomon Systech SSD1289
+·      _GLCD_CTRL_SSD1303_ signals that the display controller type is Solomon Systech SSD1303 or the equivalent Sino Wealth SH1101A
+·      _GLCD_CTRL_SSD1322_ signals that the display controller type is Solomon Systech SSD1322
+·      _GLCD_CTRL_SSD1963_ signals that the display controller type is Solomon Systech SSD1963
+·      _GLCD_CTRL_SSD2119_ signals that the display controller type is Solomon Systech SSD2119
+·      _GLCD_CTRL_T6963_ signals that the display controller type is Toshiba T6963C
+·      _GLCD_CTRL_UC1608_ signals that the display controller type is UltraChip UC1608
+·      _GLCD_CTRL_UC1701_ signals that the display controller type is UltraChip UC1701
+·      _GLCD_CTRL_PCD8544_ signals that the display controller type is Philips PCD8544
+·      _GLCD_CTRL_XG7100_ signals that the display controller type is Delcomp XG7100.
+
+
+
+
+Note: The header file glcd_types.h is automatically #include-d by glcd.h, so there is no need to #include it directly. The same applies to the header file graphics.h where the high level graphic display functions are declared.
+
+
+The following high level graphic display functions are available:
+ 
+bool glcd_init(GLCDINIT_t *init_data)
+
+
+              initializes the graphic display controller and performs the following initializations of the graphic system:
+·      clears the display
+·      sets the current plot coordinates to (0,0)
+·      sets the current font used for displaying text as specified by the font member of the structure pointed by init_data
+·      sets the current background color to 0
+·      sets the current foreground color to _GLCD_MAXCOLOR_
+·      sets the current transparency color to 0 (for displays with more than 2 colors)
+·      sets the current text horizontal justification to 1 pixel
+·      sets the current text vertical justification to 1 pixel
+·      sets the current line width to 1 pixel
+·      sets the transparent text mode display to OFF for LCDs with more than 2 colors
+·      sets the current line pattern to solid line
+·      sets the current line color to _GLCD_MAXCOLOR_
+·      sets the current fill pattern to solid
+·      sets the current fill color to _GLCD_MAXCOLOR_
+·      sets the pointers to the external memory read and write functions.
+
+
+Parameter:
+
+
+              init_data points to a GLCDINIT_t structure that specifies various parameters used for initializing the display controller, including the font used for displaying text.
+If the font member of the structure pointed by init_data is NULL, then the internal character generator (if present) of the display controller will be used for displaying text.
+In this situation the horizontal and vertical text justification settings will have no effect, the text will be aligned to character cell boundaries specific to the controller.
+If init_data is NULL, then the default settings for the specific display controller will be used, including the internal character generator, if present.
+
+
+Return values:
+
+
+              true on success, false in case of error.
+
+
+Note: A 5x7 pixel font is supplied as standard with CodeVisionAVR.
+In order to use this font, the font5x7.h header file must be #include-d and the GLCDINIT_t structure member font must be initialized with the font5x7 array address, when glcd_init is called.
+Additional fonts can be created using the LCD Vision font editor, supplied with the Advanced version of CodeVisionAVR.
+
+
+Example:
+
+
+/* Include the graphic display driver functions.
+   The display controller type and connections must be specified in
+   the Project|Configure|C Compiler|Libraries|Graphic Display menu. */
+#include <glcd.h>
+
+
+/* Include the font definition */
+#include <font5x7.h>
+
+
+/* Function used for reading image data from external memory */
+unsigned char read_ext_memory(GLCDMEMADDR_t addr)
+{
+unsigned char data;
+/* Place your code here ... */
+
+
+return data;
+}
+
+
+/* Function used for writing image data to external memory */
+void write_ext_memory(GLCDMEMADDR_t addr, unsigned char data)
+{
+/* Place your code here ... */
+
+
+}
+
+
+void main(void)
+{
+GLCDINIT_t init;
+
+
+/* Specify the current font */
+init.font=font5x7; 
+
+
+/* Specify the function used for reading data from external memory.
+   If not used, set value to NULL */
+init.readxmem=read_ext_memory;
+
+
+/* Specify the function used for writing data to external memory.
+   If not used, set value to NULL */ 
+init.writexmem=write_ext_memory;
+
+
+/* Initialize the display controller and graphics */
+glcd_init(&init); 
+
+
+/* Follows the rest of the code ... */
+}
+
+
+
+
+void glcd_display(bool on)
+
+
+              Turns display on/off.
+
+
+Parameter:
+
+
+              on specifies display on/off state.
+
+
+
+
+void glcd_setcolor(GLCDCOL_t foreground_color)
+
+
+              Sets the current foreground color that will be used for displaying text and graphics.
+
+
+Parameter:
+
+
+              foreground_color specifies the foreground color.
+
+
+
+
+void glcd_setbkcolor(GLCDCOL_t background_color)
+
+
+              Sets the current background color that will be used for displaying text and graphics.
+
+
+Parameter:
+
+
+              background_color specifies the background color.
+
+
+
+
+void glcd_settpcolor(GLCDCOL_t transparent_color)
+
+
+              Sets the transparency color for image displaying in transparent mode.
+
+
+Parameter:
+
+
+              transparent_color specifies the transparency color. 
+              When an image pixel with this color must be displayed in transparent mode GLCD_PUTTP, the background color at the pixel coordinates will be used instead.
+
+
+Note: This function is available only for displays with more than 2 colors.
+
+
+
+
+GLCDCOL_t glcd_getcolor(void)
+
+
+              Returns the display's current foreground color.
+
+
+
+
+GLCDCOL_t glcd_getbkcolor(void)
+
+
+              Returns the display's current background color.
+
+
+
+
+GLCDCOL_t glcd_gettpcolor(void)
+
+
+              Returns the current transparency color for image displaying in transparent mode.
+              When an image pixel with this color must be displayed in transparent mode GLCD_PUTTP, the background color at the pixel coordinates will be used instead.
+
+
+Note: This function is available only for displays with more than 2 colors.
+
+
+GLCDCOL_t glcd_getmaxcolor(void)
+
+
+              Returns the highest color value for a pixel in ON state.
+
+
+
+
+GLCDX_t glcd_getmaxx(void)
+
+
+              Returns the maximum X horizontal coordinate value.
+
+
+
+
+GLCDY_t glcd_getmaxy(void)
+
+
+              Returns the maximum Y horizontal coordinate value.
+
+
+
+
+void glcd_clear(void)
+
+
+              Clears the display by setting it's color to the current background color.
+
+
+
+
+void glcd_putpixel(GLCDX_t x, GLCDY_t y, GLCDCOL_t color)
+
+
+              Sets the color of the pixel at specified coordinates.
+              Note: The current pixel plot coordinates are not affected by this function.
+
+
+Parameters:
+
+
+              x specifies the horizontal pixel coordinate
+              y specifies the vertical pixel coordinate
+              color specifies the color that must be assigned to the pixel.
+
+
+
+
+void glcd_setpixel(GLCDX_t x, GLCDY_t y)
+
+
+              Sets the color of the pixel at specified coordinates to the current foreground color.
+              Note: The current pixel plot position coordinates are not affected by this function.
+
+
+Parameters:
+
+
+              x specifies the horizontal pixel coordinate
+              y specifies the vertical pixel coordinate.
+
+
+
+
+void glcd_clrpixel(GLCDX_t x, GLCDY_t y)
+
+
+              Sets the color of the pixel at specified coordinates to the current background color.
+              Note: The current pixel plot position coordinates are not affected by this function.
+
+
+Parameters:
+
+
+              x specifies the horizontal pixel coordinate
+              y specifies the vertical pixel coordinate.
+
+
+
+
+GLCDCOL_t glcd_getpixel(GLCDX_t x, GLCDY_t y)
+
+
+              Returns the color of the pixel at specified coordinates.
+              If the pixel coordinates are outside the display area, the returned color will be 0.
+              Note: The current pixel plot position coordinates are not affected by this function.
+
+
+Parameters:
+
+
+              x specifies the horizontal pixel coordinate
+              y specifies the vertical pixel coordinate.
+
+
+
+
+void glcd_moveto(GLCDX_t x, GLCDY_t y)
+
+
+              Moves the current pixel plot position to the specified coordinates.
+
+
+Parameters:
+
+
+              x specifies the horizontal pixel coordinate
+              y specifies the vertical pixel coordinate.
+
+
+
+
+void glcd_moverel(GLCDDX_t dx, GLCDDY_t dy)
+
+
+              Moves the current pixel plot position to a new relative position.
+
+
+Parameters:
+
+
+              dx specifies the horizontal displacement relative to the current pixel plot position
+              dy specifies the vertical displacement relative to the current pixel plot position.
+
+
+
+
+GLCDX_t glcd_getx(void)
+
+
+              Returns the value of the current pixel plot position horizontal coordinate.
+
+
+
+
+GLCDY_t glcd_gety(void)
+
+
+              Returns the value of the current pixel plot position vertical coordinate.
+
+
+
+
+void glcd_setfont(flash unsigned char *font_name)
+
+
+              Specifies the current font used for displaying text.
+
+
+Parameters:
+
+
+              font_name points to an array located in FLASH memory, that holds the font definition.
+
+
+
+
+void glcd_settextjustify(unsigned char horiz, unsigned char vert)
+
+
+              Sets the horizontal and vertical text justification values.
+
+
+Parameters:
+
+
+              horiz specifies the horizontal spacing between displayed characters, measured in pixels
+              vert specifies the vertical spacing between displayed characters, measured in pixels.
+
+
+
+
+unsigned char glcd_charwidth(char c)
+
+
+              Returns the width (in pixels) of a character for the current font, including the horizontal justification.
+
+
+Parameter:
+
+
+              c specifies the code of the character for which the width must be returned.
+
+
+
+
+unsigned char glcd_textheight(void)
+
+
+              Returns the text height (in pixels) for the current font, including the vertical justification.
+
+
+
+
+GLCDX_t glcd_textwidth(char *str)
+
+
+              Returns the text width (in pixels) of a NULL terminated literal char string located in RAM for the current font, including the horizontal justification.
+
+
+Parameter:
+
+
+              str pointer to the literal char string.
+
+
+
+
+GLCDX_t glcd_textwidthf(flash char *str)
+
+
+              Returns the text width (in pixels) of a NULL terminated literal char string located in FLASH for the current font, including the horizontal justification.
+
+
+Parameter:
+
+
+              str pointer to the literal char string.
+
+
+
+
+GLCDX_t glcd_textwidthe(eeprom char *str)
+
+
+              Returns the text width (in pixels) of a NULL terminated literal char string located in EEPROM for the current font, including the horizontal justification.
+
+
+Parameter:
+
+
+              str pointer to the literal char string.
+
+
+
+
+void glcd_transparent(bool on)
+
+
+              Controls displaying text in transparent mode.
+If this mode is enabled, the background color of the area where the character is displayed is preserved, otherwise the color specified by glcd_setbkcolor is used.
+
+
+Parameter:
+
+
+              on enables or disables displaying text in transparent mode.
+
+
+Note: The glcd_transparent function is defined only for displays with more than 2 colors.
+
+
+
+
+void glcd_putcharxy(GLCDX_t x, GLCDY_t y, char c)
+
+
+              Displays a character using the current font at the specified coordinates.
+After the character is displayed, the current horizontal pixel plot coordinate is increased to the next display position by the width of the character + horizontal text justification.
+If the new horizontal pixel plot coordinate will result outside the right display margin, then the new horizontal coordinate will be set to 0 and the vertical pixel plot coordinate will be increased by the height of the font + vertical text justification.
+
+
+Parameters:
+
+
+              x specifies the horizontal coordinate of the left top corner of the displayed character
+              y specifies the vertical coordinate of the left top corner of the displayed character
+              c specifies the code of the character that must be displayed.
+
+
+
+
+void glcd_putchar(char c)
+
+
+              Displays a character using the current font at the current pixel plot position.
+
+
+Parameter:
+
+
+              c specifies the code of the character that must be displayed.
+
+
+
+
+void glcd_outtextxy(GLCDX_t x, GLCDY_t y, char *str)
+
+
+              Displays a NULL terminated literal char string located in RAM at the specified coordinates.
+              The new display position will be located at the end of the displayed text.
+
+
+Parameters:
+
+
+              x specifies the horizontal coordinate of the left top corner of the first displayed character
+              y specifies the vertical coordinate of the left top corner of the first displayed character
+              str pointer to the literal char string.
+
+
+
+
+void glcd_outtextxyf(GLCDX_t x, GLCDY_t y, flash char *str)
+
+
+              Displays a NULL terminated literal char string located in FLASH at the specified coordinates.
+              The new display position will be located at the end of the displayed text.
+
+
+Parameters:
+
+
+              x specifies the horizontal coordinate of the left top corner of the first displayed character
+              y specifies the vertical coordinate of the left top corner of the first displayed character
+              str pointer to the literal char string.
+
+
+
+
+void glcd_outtextxye(GLCDX_t x, GLCDY_t y, eeprom char *str)
+
+
+              Displays a NULL terminated literal char string located in EEPROM at the specified coordinates.
+              The new display position will be located at the end of the displayed text.
+
+
+Parameters:
+
+
+              x specifies the horizontal coordinate of the left top corner of the first displayed character
+              y specifies the vertical coordinate of the left top corner of the first displayed character
+              str pointer to the literal char string.
+
+
+
+
+void glcd_outtext(char *str)
+
+
+              Displays a NULL terminated literal char string located in RAM at the current display position.
+              The new display position will be located at the end of the displayed text.
+
+
+Parameter:
+
+
+              str pointer to the literal char string.
+
+
+
+
+void glcd_outtextf(char *str)
+
+
+              Displays a NULL terminated literal char string located in FLASH at the current display position.
+              The new display position will be located at the end of the displayed text.
+
+
+Parameter:
+
+
+              str pointer to the literal char string.
+
+
+
+
+void glcd_outtexte(char *str)
+
+
+              Displays a NULL terminated literal char string located in EEPROM at the current display position.
+              The new display position will be located at the end of the displayed text.
+
+
+Parameter:
+
+
+              str pointer to the literal char string.
+
+
+
+
+void glcd_block(GLCDX_t left, GLCDY_t top, GLCDX_t width, GLCDY_t height, GLCDMEM_t memt, GLCDMEMADDR_t addr, GLCDBLOCKMODE_t mode)
+
+
+              Writes/reads a block of bytes to/from a rectangular graphics display area at specified coordinates.
+
+
+Parameters:
+
+
+              left specifies the horizontal coordinate of the left top corner of the rectangular display area
+              top specifies the vertical coordinate of the left top corner of the rectangular display area
+              width specifies the horizontal size of the rectangular display area
+              height specifies the vertical size of the rectangular display area
+              memt specifies the memory type to/from which the data will be written/read.
+              It may take one of the following values:
+
+
+                        ·  GLCD_MEM_RAM                RAM access
+                        ·  GLCD_MEM_FLASH             FLASH access
+                        ·  GLCD_MEM_EEPROM          EEPROM access
+                        ·  GLCD_MEM_EXT                  external memory accessed using special functions.
+ 
+              addr specifies the memory address to/from which the data will be written/read
+              mode specifies the operation to be performed:
+
+
+                        ·  GLCD_PUTCOPY                  copy a bitmap from memory to display
+                                                                        overwriting previous display data
+                        ·  GLCD_PUTTP                       copy a bitmap from memory to display
+                                                                        overwriting previous display data using
+                                                                        transparent mode (when an image pixel with the
+                                                                        current transparency color must be displayed,
+                                                                        the background color at the pixel coordinates will
+                                                                        be used instead)
+                        ·  GLCD_PUTXOR                    copy a bitmap from memory to display
+                                                                        performing a XOR with previous display data
+                        ·  GLCD_PUTOR                      copy a bitmap from memory to display
+                                                                        performing an OR with previous display data
+                        ·  GLCD_PUTNOT                    copy a bitmap from memory to display
+                                                                        performing a bit negation 
+                        ·  GLCD_PUTAND                    copy a bitmap from memory to display
+                                                                        performing an AND with previous display data.
+
+
+Notes: 
+·      The glcd_block function doesn't access the text overlay display, if present.
+·      The GLCD_PUTXOR, GLCD_PUTOR, GLCD_PUTNOT, GLCD_PUTAND modes are supported only for displays with 2 colors (monochrome).
+·      The GLCD_PUTTP mode is supported only for displays with more than 2 colors.
+
+
+unsigned long glcd_imagesize(GLCDX_t width, GLCDY_t height)
+
+
+              Returns the memory size in bytes needed to store a rectangular bitmap image.
+
+
+Parameters:
+
+
+              width specifies the horizontal size of the rectangular display area
+              height specifies the vertical size of the rectangular display area.
+
+
+Return values:
+
+
+              image size or 0 if the width or height values are not valid.
+
+
+
+
+unsigned long glcd_putimage(GLCDX_t left, GLCDY_t top, unsigned char *pimg, GLCDBLOCKMODE_t mode)
+
+
+              Displays a bitmap image located in RAM at specified coordinates.
+
+
+Parameters:
+
+
+              left specifies the horizontal coordinate of the left top corner of the image
+              top specifies the vertical coordinate of the left top corner of the image
+              pimg pointer to the image data, which is located in RAM
+              mode specifies how the display operation must be performed:
+
+
+                        ·  GLCD_PUTCOPY                  copy a bitmap from memory to display
+                                                                        overwriting previous display data
+                        ·  GLCD_PUTTP                       copy a bitmap from memory to display
+                                                                        overwriting previous display data using
+                                                                        transparent mode (when an image pixel with the
+                                                                        current transparency color must be displayed,
+                                                                        the background color at the pixel coordinates will
+                                                                        be used instead)
+                        ·  GLCD_PUTXOR                    copy a bitmap from memory to display
+                                                                        performing a XOR with previous display data
+                        ·  GLCD_PUTOR                      copy a bitmap from memory to display
+                                                                        performing an OR with previous display data
+                        ·  GLCD_PUTNOT                    copy a bitmap from memory to display
+                                                                        performing a bit negation 
+                        ·  GLCD_PUTAND                    copy a bitmap from memory to display
+                                                                        performing an AND with previous display data.
+
+
+Return values:
+
+
+              image size or 0 if the coordinate values are not valid.
+
+
+Notes: 
+·      The GLCD_PUTXOR, GLCD_PUTOR, GLCD_PUTNOT, GLCD_PUTAND modes are supported only for displays with 2 colors (monochrome).
+·      The GLCD_PUTTP mode is supported only for displays with more than 2 colors.
+
+
+
+
+unsigned long glcd_putimagef(GLCDX_t left, GLCDY_t top, flash unsigned char *pimg, GLCDBLOCKMODE_t mode)
+
+
+              Displays a bitmap image located in FLASH at specified coordinates.
+
+
+Parameters:
+
+
+              left specifies the horizontal coordinate of the left top corner of the image
+              top specifies the vertical coordinate of the left top corner of the image
+              pimg pointer to the image data, which is located in FLASH
+              mode specifies how the display operation must be performed:
+
+
+                        ·  GLCD_PUTCOPY                  copy a bitmap from memory to display
+                                                                        overwriting previous display data
+                        ·  GLCD_PUTTP                       copy a bitmap from memory to display
+                                                                        overwriting previous display data using
+                                                                        transparent mode (when an image pixel with the
+                                                                        current transparency color must be displayed,
+                                                                        the background color at the pixel coordinates will
+                                                                        be used instead)
+                        ·  GLCD_PUTXOR                    copy a bitmap from memory to display
+                                                                        performing a XOR with previous display data
+                        ·  GLCD_PUTOR                      copy a bitmap from memory to display
+                                                                        performing an OR with previous display data
+                        ·  GLCD_PUTNOT                    copy a bitmap from memory to display
+                                                                        performing a bit negation 
+                        ·  GLCD_PUTAND                    copy a bitmap from memory to display
+                                                                        performing an AND with previous display data.
+
+
+Return values:
+
+
+              image size or 0 if the coordinate values are not valid.
+
+
+Notes: 
+·      The GLCD_PUTXOR, GLCD_PUTOR, GLCD_PUTNOT, GLCD_PUTAND modes are supported only for displays with 2 colors (monochrome).
+·      The GLCD_PUTTP mode is supported only for displays with more than 2 colors.
+
+
+
+
+unsigned long glcd_putimagee(GLCDX_t left, GLCDY_t top, eeprom unsigned char *pimg, GLCDBLOCKMODE_t mode)
+
+
+              Displays a bitmap image located in EEPROM at specified coordinates.
+
+
+Parameters:
+
+
+              left specifies the horizontal coordinate of the left top corner of the image
+              top specifies the vertical coordinate of the left top corner of the image
+              pimg pointer to the image data, which is located in EEPROM
+              mode specifies how the display operation must be performed:
+
+
+                        ·  GLCD_PUTCOPY                  copy a bitmap from memory to display
+                                                                        overwriting previous display data
+                        ·  GLCD_PUTTP                       copy a bitmap from memory to display
+                                                                        overwriting previous display data using
+                                                                        transparent mode (when an image pixel with the
+                                                                        current transparency color must be displayed,
+                                                                        the background color at the pixel coordinates will
+                                                                        be used instead)
+                        ·  GLCD_PUTXOR                    copy a bitmap from memory to display
+                                                                        performing a XOR with previous display data
+                        ·  GLCD_PUTOR                      copy a bitmap from memory to display
+                                                                        performing an OR with previous display data
+                        ·  GLCD_PUTNOT                    copy a bitmap from memory to display
+                                                                        performing a bit negation 
+                        ·  GLCD_PUTAND                    copy a bitmap from memory to display
+                                                                        performing an AND with previous display data.
+
+
+Return values:
+
+
+              image size or 0 if the coordinate values are not valid.
+
+
+Notes: 
+·      The GLCD_PUTXOR, GLCD_PUTOR, GLCD_PUTNOT, GLCD_PUTAND modes are supported only for displays with 2 colors (monochrome).
+·      The GLCD_PUTTP mode is supported only for displays with more than 2 colors.
+
+
+
+
+unsigned long glcd_putimagex(GLCDX_t left, GLCDY_t top, GLCDMEMADDR_t addr, GLCDBLOCKMODE_t mode)
+
+
+              Displays a bitmap image located in external memory at specified coordinates.
+              Note: External memory read must be implemented through an user defined function, specified during initialization by glcd_init.
+
+
+Parameters:
+
+
+              left specifies the horizontal coordinate of the left top corner of the image
+              top specifies the vertical coordinate of the left top corner of the image
+              addr specifies the external memory address from which the image will be read
+              mode specifies how the display operation must be performed:
+
+
+                        ·  GLCD_PUTCOPY                  copy a bitmap from memory to display
+                                                                        overwriting previous display data
+                        ·  GLCD_PUTTP                       copy a bitmap from memory to display
+                                                                        overwriting previous display data using
+                                                                        transparent mode (when an image pixel with the
+                                                                        current transparency color must be displayed,
+                                                                        the background color at the pixel coordinates will
+                                                                        be used instead)
+                        ·  GLCD_PUTXOR                    copy a bitmap from memory to display
+                                                                        performing a XOR with previous display data
+                        ·  GLCD_PUTOR                      copy a bitmap from memory to display
+                                                                        performing an OR with previous display data
+                        ·  GLCD_PUTNOT                    copy a bitmap from memory to display
+                                                                        performing a bit negation 
+                        ·  GLCD_PUTAND                    copy a bitmap from memory to display
+                                                                        performing an AND with previous display data.
+
+
+Return values:
+
+
+              image size or 0 if the coordinate values are not valid.
+
+
+Notes: 
+·      The GLCD_PUTXOR, GLCD_PUTOR, GLCD_PUTNOT, GLCD_PUTAND modes are supported only for displays with 2 colors (monochrome).
+·      The GLCD_PUTTP mode is supported only for displays with more than 2 colors.
+
+
+
+
+unsigned long glcd_getimage(GLCDX_t left, GLCDY_t top, GLCDX_t width, GLCDY_t height, unsigned char *pimg)
+
+
+              Saves a rectangular display area to RAM as a bitmapped image.
+
+
+Parameters:
+
+
+              left specifies the horizontal coordinate of the left top corner of the rectangular display area
+              top specifies the vertical coordinate of the left top corner of the rectangular display area
+              width specifies the horizontal size of the rectangular display area
+              height specifies the vertical size of the rectangular display area
+              pimg points to the byte array that will hold the image data.
+
+
+Return values:
+
+
+              image size or 0 if the coordinate values are not valid.
+
+
+
+
+unsigned long glcd_getimagee(GLCDX_t left, GLCDY_t top, GLCDX_t width, GLCDY_t height, eeprom unsigned char *pimg)
+
+
+              Saves a rectangular display area to EEPROM as a bitmapped image.
+
+
+Parameters:
+
+
+              left specifies the horizontal coordinate of the left top corner of the rectangular display area
+              top specifies the vertical coordinate of the left top corner of the rectangular display area
+              width specifies the horizontal size of the rectangular display area
+              height specifies the vertical size of the rectangular display area
+              pimg points to the byte array that will hold the image data.
+
+
+Return values:
+
+
+              image size or 0 if the coordinate values are not valid.
+
+
+
+
+unsigned long glcd_getimagex(GLCDX_t left, GLCDY_t top, GLCDX_t width, GLCDY_t height, GLCDMEMADDR_t addr)
+
+
+              Saves a rectangular display area to external memory as a bitmapped image.
+              Note: External memory write must be implemented through an user defined function, specified during initialization by glcd_init.
+
+
+Parameters:
+
+
+              left specifies the horizontal coordinate of the left top corner of the rectangular display area
+              top specifies the vertical coordinate of the left top corner of the rectangular display area
+              width specifies the horizontal size of the rectangular display area
+              height specifies the vertical size of the rectangular display area
+              addr specifies the external memory address to which the image will be written.
+
+
+Return values:
+
+
+              image size or 0 if the coordinate values are not valid.
+
+
+
+
+void glcd_setlinestyle(unsigned char thickness, unsigned char bit_pattern)
+      
+              Sets the current line displaying style.
+
+
+Parameters:
+
+
+              thickness specifies the thickness of the lines to be drawn on the display, measured in pixels
+              bit_pattern specifies the pattern of the eight successive pixels of the lines to be drawn.
+              There are the following predefined patterns:
+
+
+                        ·  GLCD_LINE_SOLID              solid line pattern
+                        ·  GLCD_LINE_DOT_SMALL    small dots line pattern
+                        ·  GLCD_LINE_DOT_LARGE    large dots line pattern.
+      
+
+
+void glcd_setlinethick(unsigned char thickness)
+      
+              Sets the current line thickness.
+
+
+Parameter:
+
+
+              thickness specifies the thickness of the lines to be drawn on the display, measured in pixels.
+
+
+
+
+unsigned char glcd_getlinethick(void)
+
+
+              Returns current line thickness setting, measured in pixels.
+
+
+
+
+unsigned char glcd_getlinepattern(void) 
+
+
+              Returns current line bit pattern setting.
+
+
+
+
+void glcd_line(GLCDX_t x0, GLCDY_t y0, GLCDX_t x1, GLCDY_t y1)
+
+
+              Draws a line with the current foreground color, thickness and bit pattern.
+              The current pixel plot position will be updated to the line's ending point coordinates.
+
+
+Parameters:
+
+
+              x0 specifies the line's starting point horizontal coordinate
+              y0 specifies the line's starting point vertical coordinate
+              x1 specifies the line's ending point horizontal coordinate
+              y1 specifies the line's ending point vertical coordinate.
+
+
+
+
+void glcd_lineto(GLCDX_t x, GLCDY_t y)
+
+
+              Draws a line from the current pixel plot position to a new position using the current foreground color, thickness and bit pattern.
+The current pixel plot position will be updated to the line's ending point coordinates.
+
+
+Parameters:
+
+
+              x specifies the line's ending point horizontal coordinate
+              y specifies the line's ending point vertical coordinate.
+
+
+
+
+void glcd_linerel(GLCDDX_t dx, GLCDDY_t dy)
+
+
+              Draws a line from the current pixel plot position to a new relative position using the current foreground color, thickness and bit pattern.
+              The current pixel plot position will be updated to the line's ending point coordinates.
+
+
+Parameters:
+
+
+              dx specifies the horizontal displacement of the line's ending point relative to the current pixel plot position
+              dy specifies the vertical displacement of the line's ending point relative to the current pixel plot position.
+
+
+
+
+void glcd_rectangle(GLCDX_t left, GLCDY_t top, GLCDX_t right, GLCDY_t bottom)
+
+
+              Draws a rectangle with the current foreground color, line thickness and bit pattern, using absolute coordinates.
+              The current pixel plot position will be updated to the left top corner of the rectangle.
+
+
+Parameters:
+
+
+              left specifies the horizontal coordinate of the left top corner of the rectangle
+              top specifies the vertical coordinate of the left top corner of the rectangle
+              right specifies the horizontal coordinate of the right bottom corner of the rectangle
+              bottom specifies the vertical coordinate of the right bottom corner of the rectangle.
+
+
+
+
+void glcd_rectrel(GLCDX_t left, GLCDY_t top, GLCDDX_t width, GLCDDY_t height)
+
+
+              Draws a rectangle with the current foreground color, line thickness and bit pattern, using relative coordinates.
+The current pixel plot position will be updated to the left top corner of the rectangle.
+
+
+Parameters:
+
+
+              left specifies the horizontal coordinate of the left top corner of the rectangle
+              top specifies the vertical coordinate of the left top corner of the rectangle
+              width specifies the horizontal size of the rectangle
+              height specifies the vertical size of the rectangle.
+
+
+
+
+void glcd_rectround(GLCDX_t left, GLCDY_t top, GLCDDX_t width, GLCDDY_t height, GLCDRAD_t radius)
+
+
+              Draws a rectangle with rounded corners, using the current foreground color and line thickness.
+              The current pixel plot position will be updated to the left top corner of the rectangle.
+
+
+Parameters:
+
+
+              left specifies the horizontal coordinate of the left top corner of the rectangle
+              top specifies the vertical coordinate of the left top corner of the rectangle
+              width specifies the horizontal size of the rectangle
+              height specifies the vertical size of the rectangle
+              radius specifies the radius of each corner's circle arc. 
+
+
+
+
+void glcd_drawpoly(unsigned char npoints, flash GLCDPOINT_t *polypoints)
+
+
+              Draws a polygon using the current foreground color, line thickness and bit pattern.
+              The current pixel plot position will be updated to the ending point of the last line of the polygon.
+
+
+Parameters:
+
+
+              npoints specifies the number of points of the polygon
+              polypoints points to a an array of polygon point coordinates located in FLASH.
+
+
+Example:
+
+
+/* Include the graphic display driver functions.
+   The display controller type and connections must be specified in
+   the Project|Configure|C Compiler|Libraries|Graphic Display menu. */
+#include <glcd.h>
+
+
+/* Array located in FLASH that holds the hexagon point coordinates.
+   The coordinate of the last point must match the ones of the
+   first point, so that the polygon will be closed.
+   So there will be 6+1=7 points for a hexagon. */
+flash GLCDPOINT_t hexagon[7]=
+{{40,0},{57,10},{57,30},{40,40},{23,30},{23,10},{40,0}};
+
+
+void main(void)
+{
+GLCDINIT_t init;
+
+
+/* We will not display any text, so there's need for a font */
+init.font=NULL; 
+
+
+/* No need for reading data from external memory */
+init.readxmem=NULL;
+
+
+/* No need for writing data to external memory */ 
+init.writexmem=NULL;
+
+
+/* Initialize the display controller and graphics */
+glcd_init(&init); 
+
+
+/* Draw the hexagon */
+glcd_drawpoly(7,hexagon);
+
+
+/* Stop here */
+while (1);
+}
+
+
+
+
+void glcd_circle(GLCDX_t x, GLCDY_t y, GLCDRAD_t radius)
+
+
+              Draws a circle at specified center coordinates using the current foreground color and line thickness.
+
+
+Parameters:
+
+
+              x specifies the horizontal coordinate of the circle's center
+              y specifies the vertical coordinate of the circle's center
+              radius specifies the circle's radius.
+
+
+
+
+void glcd_arc(GLCDX_t x, GLCDY_t y, unsigned short start_angle, unsigned short end_angle, GLCDRAD_t radius)
+
+
+              Draws an arc of a circle at specified center coordinates using the current
+foreground color and line thickness.
+              The angles are measured in degrees, starting from the three o'clock position counter-clockwise.
+
+
+Parameters:
+
+
+              x specifies the horizontal coordinate of the circle's center
+              y specifies the vertical coordinate of the circle's center
+              start_angle specifies the arc's starting angle
+              end_angle specifies the arc's ending angle
+              radius specifies the circle's radius.
+
+
+
+
+void glcd_getarccoords(GLCDARCCOORDS_t *arccoords)
+
+
+              Fills a GLCDARCCOORDS_t type structure with information about the last call to the glcd_arc function.
+
+
+Parameter:
+
+
+              arccoords points to a GLCDARCCOORDS_t type structure.
+
+
+
+
+void glcd_setfill(unsigned char *pattern, GLCDCOL_t color)
+
+
+              Sets an user defined 8x8 pixel fill pattern from RAM, used by the glcd_bar and glcd_barrel functions, and the fill color.
+
+
+Parameters:
+
+
+              pattern points to an 8 byte array that holds the fill pattern 
+              color specifies the current color used by the filling functions.
+
+
+
+
+void glcd_setfillf(flash unsigned char *pattern, GLCDCOL_t color)
+
+
+              Sets an user defined 8x8 pixel fill pattern from FLASH, used by the glcd_bar and glcd_barrel functions, and the fill color.
+
+
+Parameters:
+
+
+              pattern points to an 8 byte array that holds the fill pattern 
+              color specifies the current color used by the filling functions.
+
+
+
+
+void glcd_setfille(eeprom unsigned char *pattern, GLCDCOL_t color)
+
+
+              Sets an user defined 8x8 pixel fill pattern from EEPROM, used by the glcd_bar and glcd_barrel functions, and the fill color.
+
+
+Parameters:
+
+
+              pattern points to an 8 byte array that holds the fill pattern 
+              color specifies the current color used by the filling functions.
+
+
+
+
+void glcd_setfillcolor(GLCDCOL_t color)
+
+
+              Sets the fill color.
+
+
+Parameters:
+
+
+              color specifies the current color used by the filling functions.
+
+
+
+
+GLCDCOL_t glcd_getfillcolor(void)
+
+
+              Returns the current fill color used by the filling functions.
+
+
+
+
+void glcd_bar(GLCDX_t left, GLCDY_t top, GLCDX_t right, GLCDY_t bottom)
+
+
+              Draws a filled-in rectangular bar, using absolute coordinates, without drawing an outline.
+              The bar is filled using the current fill pattern and fill color.
+
+
+Parameters:
+
+
+              left specifies the horizontal coordinate of the left top corner of the bar
+              top specifies the vertical coordinate of the left top corner of the bar
+              right specifies the horizontal coordinate of the right bottom corner of the bar
+              bottom specifies the vertical coordinate of the right bottom corner of the bar.
+
+
+
+
+void glcd_barrel(GLCDX_t left, GLCDY_t top, GLCDDX_t width, GLCDDY_t height)
+
+
+              Draws a filled-in rectangular bar, using relative coordinates, without drawing an outline.
+              The bar is filled using the current fill pattern and fill color.
+
+
+Parameters:
+
+
+              left specifies the horizontal coordinate of the left top corner of the bar
+              top specifies the vertical coordinate of the left top corner of the bar
+              width specifies the horizontal size of the bar
+              height specifies the vertical size of the bar.
+
+
+
+
+void glcd_floodfill(GLCDX_t x, GLCDY_t y, GLCDCOL_t border)
+
+
+              Fills a closed polygon or area with the current fill color.
+
+
+Parameters:
+
+
+              x specifies the horizontal coordinate of a point inside the area to be filled
+              y specifies the vertical coordinate of a point inside the area to be filled
+              border specifies the color of the border of the area to be filled, where the fill process must stop.
+
+
+
+
+void glcd_fillcircle(GLCDX_t x, GLCDY_t y, GLCDX_t radius)
+
+
+              Draws and fills a circle at specified center coordinates using the current fill color.
+
+
+Parameters:
+
+
+              x specifies the horizontal coordinate of the circle's center
+              y specifies the vertical coordinate of the circle's center
+              radius specifies the circle's radius.
+
+
+
+
+void glcd_pieslice(GLCDX_t x, GLCDY_t y, unsigned short start_angle, unsigned short end_angle, GLCDRAD_t radius)
+
+
+              Draws a pie slice at specified center coordinates using the current foreground color and line thickness.
+              After that the pie slice is filled with the current fill color.
+              The angles are measured starting from from 3 o'clock counter-clockwise.
+
+
+Parameters:
+
+
+              x specifies the horizontal coordinate of the circle's center
+              y specifies the vertical coordinate of the circle's center
+              start_angle specifies the arc's starting angle
+              end_angle specifies the arc's ending angle
+              radius specifies the circle's radius.
+
+
+
+
+
+
+  
