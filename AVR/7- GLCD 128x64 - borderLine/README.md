@@ -1,21 +1,29 @@
-> note : the main code is in `codeVision` directory, you can unzip and use them. <br>
-> the `code_preview.c` is just preview and doesn't work currectly. <br>
+> note : the main code is in `./codeVision` directory, you can unzip and use them. <br>
+> the `./code_preview.c` is just preview and doesn't work currectly. <br>
 
-### microcontroller 
+<br>
+
+## microcontroller 
 - model : AVR-ATMEGA-32A
 - core clock : 12 MHz
 
-### GLCD
+<br>
+<br>
+
+
+## GLCD
 - Display type : KS0108 128x64 CS1,CS2
 
-### Project
+<br>
+<br>
+
+## Project
 Draw 4 line in 4 side of GLCD as border
 
-
 <br>
 <br>
 
-### Pinouts
+## Pinouts
 
 
 <img src="https://github.s3.ir-thr-at1.arvanstorage.com/GLCD-pinout.png" alt="ALCD pinout" width="600"/>
@@ -34,7 +42,7 @@ you can see GLCD functions in `./glcd functions.txt`
 <br>
 <br>
 
-# Bread Board Circuit
+## Bread Board Circuit
 you can see fritzing file in `./BreadBoard-fritzing.fzz`
 <br>
 <br>
@@ -43,7 +51,7 @@ you can see fritzing file in `./BreadBoard-fritzing.fzz`
 <br>
 <br>
 
-# Pins, Fuse bits & GLCD connect
+## Pins, Fuse bits & GLCD connect
 <img src="https://github.s3.ir-thr-at1.arvanstorage.com/GLCD-ports-1.png" alt="GLCD ports" width="600"/>
 <br>
 <img src="https://github.s3.ir-thr-at1.arvanstorage.com/GLCD-ports-2.png" alt="GLCD ports" width="600"/>
