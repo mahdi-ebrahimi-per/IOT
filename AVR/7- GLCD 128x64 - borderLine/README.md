@@ -36,16 +36,19 @@ you can see GLCD functions in `./glcd functions.txt`
 
 # Bread Board Circuit
 you can see fritzing file in `./BreadBoard-fritzing.fzz`
+<br>
 <img src="https://github.s3.ir-thr-at1.arvanstorage.com/GLCD-circuit.png" alt="circuit" width="800"/>
 
 <br>
 <br>
 
-# Pins, Fuse bits & ALCD connect
-<img src="https://github.s3.ir-thr-at1.arvanstorage.com/ALCD_Ports.png" alt="ALCD ports" width="600"/>
+# Pins, Fuse bits & GLCD connect
+<img src="https://github.s3.ir-thr-at1.arvanstorage.com/GLCD-ports-1.png" alt="GLCD ports" width="600"/>
 <br>
-<img src="https://github.s3.ir-thr-at1.arvanstorage.com/ALCD_connect.png" alt="ALCD connect" width="600"/>
+<img src="https://github.s3.ir-thr-at1.arvanstorage.com/GLCD-ports-2.png" alt="GLCD ports" width="600"/>
 <br>
-<img src="https://github.s3.ir-thr-at1.arvanstorage.com/ALCD_fusebit.png" alt="ALCD fuse bit"/>
-  
-
+<img src="https://github.s3.ir-thr-at1.arvanstorage.com/GLCD-ports-3.png" alt="GLCD ports" width="600"/>
+<br>
+<img src="https://github.s3.ir-thr-at1.arvanstorage.com/GLCD-ports-4.png" alt="ALCD fuse bit"/>
+<br>
+<img src="https://github.s3.ir-thr-at1.arvanstorage.com/GLCD-ports-5.png" alt="ALCD fuse bit"/>
