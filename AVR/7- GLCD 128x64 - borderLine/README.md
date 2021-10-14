@@ -37,6 +37,7 @@ you can see GLCD functions in `./glcd functions.txt`
 # Bread Board Circuit
 you can see fritzing file in `./BreadBoard-fritzing.fzz`
 <br>
+<br>
 <img src="https://github.s3.ir-thr-at1.arvanstorage.com/GLCD-circuit.png" alt="circuit" width="800"/>
 
 <br>
