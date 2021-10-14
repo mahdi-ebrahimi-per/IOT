@@ -15,10 +15,19 @@ Draw 4 line in 4 side of GLCD as border
 <br>
 <br>
 
+### Pinouts
+
+
 <img src="https://github.s3.ir-thr-at1.arvanstorage.com/GLCD-pinout.png" alt="ALCD pinout" width="600"/>
 <br>
 <img src="https://github.s3.ir-thr-at1.arvanstorage.com/GLCD-pinout-exp.png" width="600"/>
 
+
+<br>
+<br>
+
+
+## GLCD functions
 
 you can see GLCD functions in `./glcd functions.txt`
 
