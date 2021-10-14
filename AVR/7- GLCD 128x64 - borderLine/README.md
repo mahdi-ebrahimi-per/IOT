@@ -5,51 +5,29 @@
 - model : AVR-ATMEGA-32A
 - core clock : 12 MHz
 
+### GLCD
+- Display type : KS0108 128x64 CS1,CS2
+
 ### Project
-input 8-bit dip-switch for binary number input to PORT-C.
-<br>
-transfer binary to decimal and show it in the ALCD screen.
+Draw 4 line in 4 side of GLCD as border
 
 
 <br>
 <br>
 
-<img src="https://github.s3.ir-thr-at1.arvanstorage.com/alcd.jpg" alt="ALCD pinout" width="600"/>
-
-we see ALCD function in CodeVision :  
-
-## lcd_gotoxy (int ,int );
-
-move cursor to x, y of 2x16 and start putting text from there.
-
+<img src="https://github.s3.ir-thr-at1.arvanstorage.com/GLCD-pinout.png" alt="ALCD pinout" width="600"/>
 <br>
+<img src="https://github.s3.ir-thr-at1.arvanstorage.com/GLCD-pinout-exp.png" width="600"/>
 
-## lcd_clear( );
 
-clear all text on the lcd.
-
-<br>
-
-## lcd_puts( char*str );
-
-put string on the screen, that read (save `char*str`) from/on RAM.
-<br>
-here we input Variable in this function.
-
-<br>
-
-## lcd_putsf( char*str );
-
-put string on the screen that read (save `char*str`) from/on FLASH.
-<br>
-here we input string in this function.
-
+you can see GLCD functions in `./glcd functions.txt`
 
 <br>
 <br>
 
 # Bread Board Circuit
-<img src="https://github.s3.ir-thr-at1.arvanstorage.com/ALCD-circuit.png" alt="circuit" width="800"/>
+you can see fritzing file in `./BreadBoard-fritzing.fzz`
+<img src="https://github.s3.ir-thr-at1.arvanstorage.com/GLCD-circuit.png" alt="circuit" width="800"/>
 
 <br>
 <br>
