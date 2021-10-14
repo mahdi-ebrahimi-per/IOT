@@ -60,5 +60,8 @@ here we input string in this function.
 <img src="https://github.s3.ir-thr-at1.arvanstorage.com/ALCD_connect.png" alt="ALCD connect" width="600"/>
 <br>
 <img src="https://github.s3.ir-thr-at1.arvanstorage.com/ALCD_fusebit.png" alt="ALCD fuse bit"/>
-  
+<br>
+<img src="https://github.s3.ir-thr-at1.arvanstorage.com/GLCD-chksl.png" alt="ALCD fuse bit"/>
+
+
 
