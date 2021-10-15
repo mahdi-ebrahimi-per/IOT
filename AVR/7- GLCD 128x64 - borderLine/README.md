@@ -5,7 +5,7 @@
 
 ## microcontroller 
 - model : AVR-ATMEGA-32A
-- core clock : 12 MHz
+- clock : 12 MHz
 
 <br>
 <br>
