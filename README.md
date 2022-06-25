@@ -1,2 +1,2 @@
 # IoT
-Project and Documentation of IOT
+Project and Documentation of IoT
